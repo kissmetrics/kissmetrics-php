@@ -12,7 +12,7 @@ class KM
   /**
    * API key
    *
-   * @var [type]
+   * @var string
    */
 
   private $key;
@@ -20,7 +20,7 @@ class KM
   /**
    * User identification
    *
-   * @var [type]
+   * @var string
    */
 
   private $id;
@@ -28,7 +28,7 @@ class KM
   /**
    * Queries queued for submission
    *
-   * @var [type]
+   * @var array
    */
 
   private $queries;
@@ -145,6 +145,7 @@ class KM
    *
    * @return KM
    */
+
   public function set($properties, $time = null)
   {
     $this->ensureSetup();

@@ -3,15 +3,21 @@ has a slightly better API and no built-in cron support (that's a
 feature). Here's how to use it:
 
     <?php
-    
+
     $km = new KM('API key'); // Initialize
 
-    $km->identify('bob@example.com')   // Identify user
-      ->alias('old-anonymous-cookie')  // Alias to anonymous user
-      ->set(array('gender' => 'male')) // Set a property
-      ->record('Viewed thing');        // Record an event
+    $km->identify('bob@example.com')   // Identify user (always)
+      ->alias('old-anonymous-cookie')  // Alias to previously anonymous user, maybe
+      ->set(array('gender' => 'male')) // Set some property
+      ->record('Viewed thing');        // Record an event, optionally with properties
 
     $km->submit(); // Submit all that to KISSmetrics in one go
 
-Cheers,  
+    ?>
+
+In case of errors this thing throws a `KMException` so if you have a
+fire-and-forget attitude to these metrics just try/catch those. Though
+it's helpful when you want to make sure everything is setup correctly!
+
+Cheers,
 Eugen
