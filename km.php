@@ -96,7 +96,8 @@ class KM
     $this->ensureSetup();
 
     array_push($this->queries, array(
-      'a' => array(
+      'a',
+      array(
         '_p' => $old_id,
         '_n' => $this->id,
         '_k' => $this->key
@@ -126,7 +127,8 @@ class KM
     }
 
     array_push($this->queries, array(
-      'e' => array_merge($properties, array(
+      'e',
+      array_merge($properties, array(
         '_n' => $event,
         '_p' => $this->id,
         '_k' => $this->key,
@@ -156,7 +158,8 @@ class KM
     }
 
     array_push($this->queries, array(
-      's' => array_merge($properties, array(
+      's',
+      array_merge($properties, array(
         '_k' => $this->key,
         '_p' => $this->id,
         '_t' => $time
@@ -198,16 +201,16 @@ class KM
 
     if(! $fp)
     {
-      throw new KMException("Cannot connect to the KISSmetrics server");
+      throw new KMException("Cannot connect to the KISSmetrics server: " . $errstr);
     }
 
     stream_set_blocking($fp, 0);
 
     $i = 0;
 
-    foreach($this->queries as $endpoint => $data)
+    foreach($this->queries as $data)
     {
-      $req  = 'GET /' . $endpoint . '?' . http_build_query($data, '', '&') . ' HTTP/1.1' . "\r\n";
+      $req  = 'GET /' . $data[0] . '?' . http_build_query($data[1], '', '&') . ' HTTP/1.1' . "\r\n";
       $req .= 'Host: ' . $this->host . "\r\n";
 
       if(++$i == count($this->queries))
@@ -219,7 +222,12 @@ class KM
         $req .= 'Connection: Keep-Alive' . "\r\n\r\n";
       }
 
-      fwrite($fp, $req);
+      $written = fwrite($fp, $req);
+
+      if($written === false)
+      {
+        throw new KMException("Could not submit the query: " . json_encode($data));
+      }
     }
 
     fclose($fp);
