@@ -4,7 +4,7 @@ feature). Here's how to use it:
 
     <?php
 
-    $km = new KM('API key'); // Initialize
+    $km = new Gargron\KM('API key'); // Initialize
 
     $km->identify('bob@example.com')   // Identify user (always)
       ->alias('old-anonymous-cookie')  // Alias to previously anonymous user, maybe
