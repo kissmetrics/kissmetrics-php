@@ -234,7 +234,9 @@ class KM
 
     foreach($this->queries as $data)
     {
-      $req  = 'GET /' . $data[0] . '?' . http_build_query($data[1], '', '&') . ' HTTP/1.1' . "\r\n";
+      $query = http_build_query($data[1], '', '&', PHP_QUERY_RFC3986);
+
+      $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
       $req .= 'Host: ' . $this->host . "\r\n";
 
       if(++$i == count($this->queries))
@@ -250,7 +252,7 @@ class KM
 
       if($written === false)
       {
-        throw new KMException("Could not submit the query: " . json_encode($data));
+        throw new KMException("Could not submit the query: /" . $data[0] . "?" . $query);
       }
     }
 
