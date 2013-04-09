@@ -260,5 +260,5 @@ class KM
   }
 }
 
-class KMException
+class KMException extends Exception
 {}
