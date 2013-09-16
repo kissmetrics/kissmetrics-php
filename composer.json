@@ -1,7 +1,7 @@
 {
-  "name": "gargron/km",
+  "name": "kissmetrics/kissmetrics",
   "type": "library",
-  "description": "A class for the KISSmetrics API",
+  "description": "A client for the KISSmetrics API",
   "homepage": "https://github.com/Gargron/km-php",
   "license": "MIT",
   "keywords": ["kissmetrics"],
@@ -15,5 +15,10 @@
   ],
   "require": {
     "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "KISSmetrics\\": "src/"
+    }
   }
 }
