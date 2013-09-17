@@ -1,7 +1,7 @@
 {
   "name": "kissmetrics/kissmetrics-php",
   "type": "library",
-  "description": "A client for the KISSmetrics API",
+  "description": "The KISSmetrics API client",
   "homepage": "https://github.com/kissmetrics/kissmetrics-php",
   "license": "MIT",
   "keywords": ["kissmetrics"],
