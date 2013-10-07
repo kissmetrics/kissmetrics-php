@@ -100,7 +100,12 @@ class Sockets implements Transport {
     $i = 0;
 
     foreach($this->queries as $data) {
-      $query = http_build_query($data[1], '', '&', PHP_QUERY_RFC3986);
+      $query = http_build_query($data[1], '', '&');
+      $query = str_replace(
+                  array('+', '%7E'),
+                  array('%20', '~'),
+                  $query
+               );
 
       $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
       $req .= 'Host: ' . $this->host . "\r\n";
