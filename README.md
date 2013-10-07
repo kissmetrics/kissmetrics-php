@@ -8,7 +8,7 @@ slightly better API and no built-in cron support (that's a feature). Here's
 how to use it:
 
 ```php
-$km = new KISSmetrics\Client('API key'); // Initialize
+$km = new KISSmetrics\Client('API key', KISSmetrics\Transport\Sockets::initDefault()); // Initialize
 
 $km->identify('bob@example.com')   // Identify user (always)
   ->alias('old-anonymous-cookie')  // Alias to previously anonymous user, maybe
