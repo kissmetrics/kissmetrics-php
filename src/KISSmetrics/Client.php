@@ -23,6 +23,7 @@
  */
 
 namespace KISSmetrics;
+use KISSmetrics\Transport\Transport;
 
 /**
  * KISSmetrics PHP API class that doesn't abuse the singleton pattern
@@ -51,33 +52,28 @@ class Client {
   private $queries;
 
   /**
-   * KISSmetrics API host
-   * @var string
+   * Transport instance
+   * @var Transport
    */
-  protected $host = 'trk.kissmetrics.com';
-
-  /**
-   * KISSmetrics API port
-   * @var integer
-   */
-  protected $port = 80;
+  protected $transport;
 
   /**
    * Initialize
    * @param string $key
    */
-  public function __construct($key, $host = null, $port = null)
+  public function __construct($key, Transport $transport)
   {
-    $this->key     = $key;
-    $this->queries = array();
+    $this->key       = $key;
+    $this->queries   = array();
+    $this->transport = $transport;
+  }
 
-    if(! is_null($host)) {
-      $this->host = $host;
-    }
-
-    if(! is_null($port)) {
-      $this->port = $port;
-    }
+  /**
+   * Get API key
+   * @return string
+   */
+  public function getKey() {
+    return $this->key;
   }
 
   /**
@@ -89,6 +85,14 @@ class Client {
   {
     $this->id = $id;
     return $this;
+  }
+
+  /**
+   * Get identification
+   * @return string
+   */
+  public function getId() {
+    return $this->id;
   }
 
   /**
@@ -183,46 +187,19 @@ class Client {
   }
 
   /**
+   * Get queued events
+   * @return array
+   */
+  public function getQueries() {
+    return $this->queries;
+  }
+
+  /**
    * Submit the things to the remote host
    * @return void
    */
   public function submit()
   {
-    $fp = fsockopen($this->host, $this->port, $errno, $errstr, 30);
-
-    if(! $fp) {
-      throw new ClientException("Cannot connect to the KISSmetrics server: " . $errstr);
-    }
-
-    stream_set_blocking($fp, 0);
-
-    $i = 0;
-
-    foreach($this->queries as $data) {
-      
-      $query = http_build_query($data[1], '', '&');
-      $query = str_replace(
-                  array('+', '%7E'), 
-                  array('%20', '~'), 
-                  $query
-               );
-
-      $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
-      $req .= 'Host: ' . $this->host . "\r\n";
-
-      if(++$i == count($this->queries)) {
-        $req .= 'Connection: Close' . "\r\n\r\n";
-      } else {
-        $req .= 'Connection: Keep-Alive' . "\r\n\r\n";
-      }
-
-      $written = fwrite($fp, $req);
-
-      if($written === false) {
-        throw new ClientException("Could not submit the query: /" . $data[0] . "?" . $query);
-      }
-    }
-
-    fclose($fp);
+    $this->transport->submitData($this->queries);
   }
 }
