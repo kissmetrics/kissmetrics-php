@@ -88,7 +88,7 @@ class Sockets implements Transport {
   /**
    * @see Transport
    */
-  public function submitData(array $data) {
+  public function submitData(array $queries) {
     $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
 
     if(! $fp) {
@@ -99,7 +99,7 @@ class Sockets implements Transport {
 
     $i = 0;
 
-    foreach($this->queries as $data) {
+    foreach($queries as $data) {
       $query = http_build_query($data[1], '', '&');
       $query = str_replace(
                   array('+', '%7E'),
