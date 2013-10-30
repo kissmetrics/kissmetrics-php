@@ -110,7 +110,7 @@ class Sockets implements Transport {
       $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
       $req .= 'Host: ' . $this->host . "\r\n";
 
-      if(++$i == count($this->queries)) {
+      if(++$i == count($queries)) {
         $req .= 'Connection: Close' . "\r\n\r\n";
       } else {
         $req .= 'Connection: Keep-Alive' . "\r\n\r\n";
