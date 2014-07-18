@@ -95,7 +95,7 @@ class Sockets implements Transport {
       throw new TransportException("Cannot connect to the KISSmetrics server: " . $errstr);
     }
 
-    stream_set_blocking($fp, 0);
+    //stream_set_blocking($fp, 0);
 
     $i = 0;
 
