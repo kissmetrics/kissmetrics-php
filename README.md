@@ -27,7 +27,7 @@ it's helpful when you want to make sure everything is setup correctly!
 ```json
 {
   "require": {
-    "kissmetrics/kissmetrics-php": "dev-master"
+    "kissmetrics/kissmetrics-php": "~0.1.0"
   }
 }
 ```
