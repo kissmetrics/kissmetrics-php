@@ -38,6 +38,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
           '_p'   => 'john@smith',
           '_k'   => '12345',
           '_t'   => 0,
+          '_d'   => true
         ),
       ),
     ), $this->client->getQueries());
@@ -55,6 +56,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
           '_p'   => 'john@smith',
           '_k'   => '12345',
           '_t'   => 0,
+          '_d'   => true
         ),
       ),
     ), $this->client->getQueries());
