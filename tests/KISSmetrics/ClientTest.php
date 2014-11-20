@@ -44,6 +44,42 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     ), $this->client->getQueries());
   }
 
+  public function testRecordWithTimeAsNull() {
+    $this->client->identify('john@smith');
+    $this->client->record('Purchased thing', array());
+
+    $this->assertEquals(array(
+      array(
+        'e',
+        array(
+          '_n'   => 'Purchased thing',
+          '_p'   => 'john@smith',
+          '_k'   => '12345',
+          '_t'   => time(),
+          '_d'   => false
+        ),
+      ),
+    ), $this->client->getQueries());
+  }
+
+  public function testSetWithTimeAsNull() {
+    $this->client->identify('john@smith');
+    $this->client->set(array('eyes' => 'blue'));
+
+    $this->assertEquals(array(
+      array(
+        's',
+        array(
+          'eyes' => 'blue',
+          '_p'   => 'john@smith',
+          '_k'   => '12345',
+          '_t'   => time(),
+          '_d'   => null
+        ),
+      ),
+    ), $this->client->getQueries());
+  }
+
   public function testSet() {
     $this->client->identify('john@smith');
     $this->client->set(array('eyes' => 'blue'), 0);
