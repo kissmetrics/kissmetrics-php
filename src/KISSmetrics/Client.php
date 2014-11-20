@@ -158,12 +158,12 @@ class Client {
   {
     $this->ensureSetup();
 
-      if(is_null($time)) {
-          $time = time();
-          $isManualTime = false;
-      } else {
-          $isManualTime = true;
-      }
+    if(is_null($time)) {
+      $time = time();
+      $isManualTime = false;
+    } else {
+      $isManualTime = true;
+    }
 
     array_push($this->queries, array(
       's',
