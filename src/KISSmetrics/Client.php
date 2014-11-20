@@ -129,6 +129,9 @@ class Client {
 
     if(is_null($time)) {
       $time = time();
+      $isManualTime = false;
+    } else {
+      $isManualTime = true;
     }
 
     array_push($this->queries, array(
@@ -137,7 +140,8 @@ class Client {
         '_n' => $event,
         '_p' => $this->id,
         '_k' => $this->key,
-        '_t' => $time
+        '_t' => $time,
+        '_d' => $isManualTime
       ))
     ));
 
@@ -156,6 +160,9 @@ class Client {
 
     if(is_null($time)) {
       $time = time();
+      $isManualTime = false;
+    } else {
+      $isManualTime = true;
     }
 
     array_push($this->queries, array(
@@ -163,7 +170,8 @@ class Client {
       array_merge($properties, array(
         '_k' => $this->key,
         '_p' => $this->id,
-        '_t' => $time
+        '_t' => $time,
+        '_d' => $isManualTime
       ))
     ));
 
