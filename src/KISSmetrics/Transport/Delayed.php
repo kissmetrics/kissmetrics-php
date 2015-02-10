@@ -146,8 +146,10 @@ class Delayed extends Sockets implements Transport {
     // Unserialize all the queries into a single array.
     $all_queries = array();
     foreach ($data as $serialized_queries) {
-      $queries = unserialize($serialized_queries);
-      $all_queries += $queries;
+      if($serialized_queries !== null && strlen($serialized_queries) !== 0) {
+        $queries = unserialize($serialized_queries);
+        $all_queries = array_merge($all_queries, $queries);
+      }
     }
 
     try {
