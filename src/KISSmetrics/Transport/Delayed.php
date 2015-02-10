@@ -141,7 +141,7 @@ class Delayed extends Sockets implements Transport {
   public function sendLoggedData() {
     // Load all stored queries.
     $data = file_get_contents($this->getLogFile());
-    $data = explode('\n', $data);
+    $data = explode(PHP_EOL, $data);
 
     // Unserialize all the queries into a single array.
     $all_queries = array();
