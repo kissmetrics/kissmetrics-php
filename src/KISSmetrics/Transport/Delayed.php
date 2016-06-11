@@ -60,13 +60,26 @@ class Delayed extends Sockets implements Transport {
   /**
    * Create new instance of KISSmeterics\Transport\Delayed with defaults set.
    *
-   * @param string $log_dir
-   *   Full path to local file system directory where event logs are stored.
+   * @param array $params
+   *   $params = [
+   *     'log_dir' => (string) Full path to local file system directory where event logs are stored.
+   *     'host'    => (string) HTTP host to use when connecting to the KISSmetrics API.
+   *     'port'    => (int) HTTP port to use when connecting to the KISSmetrics API.
+   *   ]
    *
    * @return \KISSmetrics\Transport\Delayed
    */
-  public static function initDefault($log_dir) {
-    return new static($log_dir, 'trk.kissmetrics.com', 80);
+  public static function initDefault($params = array()) {
+    if (!array_key_exists('log_dir', $params)) {
+      throw new TransportException("Cannot initialize the instance of KISSmeterics\Transport\Delayed because of missing 'log_dir' param");
+    }
+
+    $default = array(
+      'host' => 'trk.kissmetrics.com',
+      'port' => 80,
+    );
+    $values = array_merge($default, $params);
+    return new static($values['log_dir'], $values['host'], $values['port']);
   }
 
   /**

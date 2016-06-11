@@ -63,10 +63,22 @@ class Sockets implements Transport {
 
   /**
    * Create new instance with KISSmetrics API defaults
+   *
+   * @param array $params
+   *   $params = [
+   *     'host'    => (string) HTTP host to use when connecting to the KISSmetrics API.
+   *     'port'    => (int) HTTP port to use when connecting to the KISSmetrics API.
+   *   ]
+   *
    * @return Sockets
    */
-  public static function initDefault() {
-    return new static('trk.kissmetrics.com', 80);
+  public static function initDefault($params = array()) {
+    $default = array(
+      'host' => 'trk.kissmetrics.com',
+      'port' => 80,
+    );
+    $values = array_merge($default, $params);
+    return new static($values['host'], $values['port']);
   }
 
   /**
