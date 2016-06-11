@@ -63,9 +63,13 @@ class Sockets implements Transport {
 
   /**
    * Create new instance with KISSmetrics API defaults
+   *
+   * @param string $log_dir
+   *   This is a fix so that this class has the same declaration as the child class Delayed
+   *
    * @return Sockets
    */
-  public static function initDefault() {
+  public static function initDefault($log_dir=null) {
     return new static('trk.kissmetrics.com', 80);
   }
 
