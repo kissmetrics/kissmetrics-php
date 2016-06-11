@@ -65,7 +65,11 @@ class Delayed extends Sockets implements Transport {
    *
    * @return \KISSmetrics\Transport\Delayed
    */
-  public static function initDefault($log_dir) {
+  public static function initDefault($log_dir=null) {
+    if ($log_dir === null) {
+      throw new TransportException("Cannot initialize the instance of KISSmeterics\Transport\Delayed because of missing 'log_dir' param");
+    }
+
     return new static($log_dir, 'trk.kissmetrics.com', 80);
   }
 
