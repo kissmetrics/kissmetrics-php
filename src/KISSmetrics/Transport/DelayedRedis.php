@@ -195,27 +195,30 @@ class DelayedRedis extends Sockets implements Transport {
     // Load all stored queries.
     $data = $this->getFromRedis($queryLogKey);
 
-    // Unserialize all the queries into a single array.
-    $all_queries = array();
-    foreach ($data as $serialized_queries) {
-      if($serialized_queries !== null && strlen($serialized_queries) !== 0) {
-        $queries = unserialize($serialized_queries);
-        array_push($all_queries, $queries);
+    if($data !== -1)  {
+      // Unserialize all the queries into a single array.
+      $all_queries = array();
+      foreach ($data as $serialized_queries) {
+        if($serialized_queries !== null && strlen($serialized_queries) !== 0) {
+          $queries = unserialize($serialized_queries);
+          array_push($all_queries, $queries);
+        }
+      }
+
+      try {
+        // Send all the stored queries using the KISSmetrics/Transport/Sockets
+        // implementation.
+        parent::submitData($all_queries);
+
+        // Cleanup the queries log in Redis
+        $this->cleanupRedis($queryLogKey);
+
+      }
+      catch (Exception $e) {
+        throw new TransportException("Cannot send logged events to KISSmetrics: " . $e->getMessage());
       }
     }
 
-    try {
-      // Send all the stored queries using the KISSmetrics/Transport/Sockets
-      // implementation.
-      parent::submitData($all_queries);
-
-      // Cleanup the queries log in Redis
-      $this->cleanupRedis($queryLogKey);
-
-    }
-    catch (Exception $e) {
-      throw new TransportException("Cannot send logged events to KISSmetrics: " . $e->getMessage());
-    }
   }
 
   /**
