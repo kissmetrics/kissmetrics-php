@@ -39,14 +39,17 @@ class DelayedRedisTest extends \PHPUnit_Framework_TestCase {
       )
     );
 
+    $redis = $this->getMock('Redis', array(
+      'rPush'
+    ), array(), '', FALSE);
 
-    $redis = \Mockery::mock('Redis');
-    $redis->shouldReceive('rPush')
-      ->withArgs(array('KISSmetrics_events', serialize($queryData1)))
-      ->once();
-    $redis->shouldReceive('rPush')
-      ->withArgs(array('KISSmetrics_events', serialize($queryData2)))
-      ->once();
+    $redis->expects($this->at(0))
+      ->method('rPush', 'rPush')
+      ->with('KISSmetrics_events', serialize($queryData1));
+
+    $redis->expects($this->at(1))
+      ->method('rPush')
+      ->with('KISSmetrics_events', serialize($queryData2));
 
     $km_api->setRedisInstance($redis);
 
@@ -83,17 +86,23 @@ class DelayedRedisTest extends \PHPUnit_Framework_TestCase {
       )
     );
 
+    $redis = $this->getMock('Redis', array(
+      'lRange', 'delete'
+    ), array(), '', FALSE);
 
-    $redis = \Mockery::mock('Redis');
-    $redis->shouldReceive('lRange')
-      ->withArgs(array('KISSmetrics_events', 0, -1))
-      ->once()
-      ->andReturn(array(
-        serialize($queryData1),
-        serialize($queryData2)
+    $redis->expects($this->exactly(1))
+      ->method('lRange')
+      ->with('KISSmetrics_events', 0, -1)
+      ->will($this->returnValue(
+          array(
+            serialize($queryData1),
+            serialize($queryData2)
+          )
       ));
-    $redis->shouldReceive('delete')
-      ->withArgs(array('KISSmetrics_events'));
+
+    $redis->expects($this->exactly(1))
+      ->method('delete')
+      ->with('KISSmetrics_events');
 
     $km_api->setRedisInstance($redis);
 
