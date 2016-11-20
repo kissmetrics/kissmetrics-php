@@ -11,6 +11,7 @@ class DelayedRedisTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals('KISSmetrics', $km_api->getRedisPrefix());
     $this->assertEquals('127.0.0.1', $km_api->getRedisHost());
     $this->assertEquals(6379, $km_api->getRedisPort());
+    $this->assertEquals(0, $km_api->getRedisDatabase());
   }
 
   public function testSubmitData() {

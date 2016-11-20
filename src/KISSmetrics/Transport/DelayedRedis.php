@@ -40,6 +40,12 @@ class DelayedRedis extends Sockets implements Transport {
   protected $redis_port;
 
   /**
+   * The Redis database to use.
+   * @var int
+   */
+  protected $redis_database;
+
+  /**
    * The prefix used for the Redis key.
    * @var string
    */
@@ -64,6 +70,8 @@ class DelayedRedis extends Sockets implements Transport {
    *   Host of the Redis instance where event logs are stored.
    * @param int $redis_port
    *   Port of the Redis instance where event logs are stored.
+   * @param int $redis_database
+   *  The database index to use for storing event logs.
    * @param string $redis_prefix
    *   Port of the Redis instance where event logs are stored.
    * @param string $host
@@ -74,10 +82,11 @@ class DelayedRedis extends Sockets implements Transport {
    *   Number of seconds to wait before timing out when connecting to the
    *   KISSmetrics API.
    */
-  public function __construct($redis_host = '127.0.0.1', $redis_port = 6379, $redis_prefix = 'KISSmetrics', $host, $port, $timeout = 30) {
+  public function __construct($redis_host = '127.0.0.1', $redis_port = 6379, $redis_database = 0, $redis_prefix = 'KISSmetrics', $host, $port, $timeout = 30) {
     parent::__construct($host, $port, $timeout);
     $this->redis_host = $redis_host;
     $this->redis_port = $redis_port;
+    $this->redis_database = $redis_database;
     $this->redis_prefix = $redis_prefix;
   }
 
@@ -88,13 +97,15 @@ class DelayedRedis extends Sockets implements Transport {
    *   Host of the Redis instance where event logs are stored.
    * @param int $redis_port
    *   Port of the Redis instance where event logs are stored.
+   * @param int $redis_database
+   *  The database index to use for storing event logs.
    * @param string $redis_prefix
    *   Port of the Redis instance where event logs are stored.
    *
    * @return \KISSmetrics\Transport\Redis
    */
-  public static function initDefault($redis_host = '127.0.0.1', $redis_port = 6379, $redis_prefix = 'KISSmetrics') {
-    return new static($redis_host, $redis_port, $redis_prefix, 'trk.kissmetrics.com', 80);
+  public static function initDefault($redis_host = '127.0.0.1', $redis_port = 6379, $redis_database = 0, $redis_prefix = 'KISSmetrics') {
+    return new static($redis_host, $redis_port, $redis_database, $redis_prefix, 'trk.kissmetrics.com', 80);
   }
 
   /**
@@ -121,6 +132,15 @@ class DelayedRedis extends Sockets implements Transport {
    */
   public function getRedisPrefix() {
     return $this->redis_prefix;
+  }
+
+  /**
+   * Get the Redis database
+   *
+   * @return int
+   */
+  public function getRedisDatabase() {
+    return $this->redis_database;
   }
 
   /**
@@ -205,6 +225,7 @@ class DelayedRedis extends Sockets implements Transport {
     /** @var \Redis $redis */
     $this->redis_instance = new \Redis();
     $this->redis_instance->connect($this->getRedisHost(), $this->getRedisPort());
+    $this->redis_instance->select($this->getRedisDatabase());
   }
 
   /**
