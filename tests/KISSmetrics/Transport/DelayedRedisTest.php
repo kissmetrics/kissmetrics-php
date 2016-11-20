@@ -58,7 +58,6 @@ class DelayedRedisTest extends \PHPUnit_Framework_TestCase {
         $queryData2,
     ));
 
-    \Mockery::close();
   }
 
   public function testSendLoggedData() {
@@ -108,7 +107,6 @@ class DelayedRedisTest extends \PHPUnit_Framework_TestCase {
 
     $km_api->sendLoggedData();
 
-    \Mockery::close();
   }
 
 
