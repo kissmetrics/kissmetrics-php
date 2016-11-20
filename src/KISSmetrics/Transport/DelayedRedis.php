@@ -203,7 +203,7 @@ class DelayedRedis extends Sockets implements Transport {
    */
   private function initRedis() {
     /** @var \Redis $redis */
-    $this->redis_instance = new Redis();
+    $this->redis_instance = new \Redis();
     $this->redis_instance->connect($this->getRedisHost(), $this->getRedisPort());
   }
 
