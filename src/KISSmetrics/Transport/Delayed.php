@@ -52,9 +52,8 @@ class Delayed extends Sockets implements Transport {
    *   Number of seconds to wait before timing out when connecting to the
    *   KISSmetrics API.
    */
-  public function __construct($log_dir, $host, $port, $timeout = 30) {
+  public function __construct($host, $port, $timeout = 30) {
     parent::__construct($host, $port, $timeout);
-    $this->log_dir = $log_dir;
   }
 
   /**
@@ -65,8 +64,18 @@ class Delayed extends Sockets implements Transport {
    *
    * @return \KISSmetrics\Transport\Delayed
    */
-  public static function initDefault($log_dir) {
-    return new static($log_dir, 'trk.kissmetrics.com', 80);
+  public static function initDefault() {
+    $object = new static('trk.kissmetrics.com', 80);
+  }
+
+  /**
+   * Set the log directory
+   *
+   * @param string $log_dir
+   */
+  public function setLogDir($log_dir)
+  {
+      $this->log_dir = $log_dir;
   }
 
   /**
@@ -84,7 +93,12 @@ class Delayed extends Sockets implements Transport {
    * @return string
    */
   protected function getLogFile() {
-    return $this->getLogDir() . '/kissmetrics_query.log';
+    $log_dir = $this->getLogDir();
+    if (empty($log_dir)) {
+        throw new TransportException('Cannot get log file, location not provided');
+    }
+
+    return $log_dir . '/kissmetrics_query.log';
   }
 
   /**
