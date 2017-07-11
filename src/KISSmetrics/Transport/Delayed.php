@@ -65,7 +65,7 @@ class Delayed extends Sockets implements Transport {
    * @return \KISSmetrics\Transport\Delayed
    */
   public static function initDefault() {
-    $object = new static('trk.kissmetrics.com', 80);
+    return new static('trk.kissmetrics.com', 80);
   }
 
   /**
