@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013 Eugen Rochko
+ * Copyright (c) 2013 Eugen Rochko.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,16 @@
 namespace KISSmetrics\Transport;
 
 /**
- * Mock transport implementation that does nothing
+ * Mock transport implementation that does nothing.
  *
  * @author Eugen Rochko <eugen@zeonfederated.com>
  */
-
-class Mock implements Transport {
-  /**
-   * @see Transport
-   */
-  public function submitData(array $data) {
-    return;
-  }
+class Mock implements Transport
+{
+    /**
+     * @see Transport
+     */
+    public function submitData(array $data)
+    {
+    }
 }

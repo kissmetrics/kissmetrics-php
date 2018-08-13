@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013 Eugen Rochko
+ * Copyright (c) 2013 Eugen Rochko.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,18 @@
 namespace KISSmetrics\Transport;
 
 /**
- * Transport interface
+ * Transport interface.
  *
  * @author Eugen Rochko <eugen@zeonfederated.com>
  */
-
-interface Transport {
-  /**
-   * Send an array of data to its final destination
-   * @param  array  $data
-   * @return void
-   */
-  public function submitData(array $data);
+interface Transport
+{
+    /**
+     * Send an array of data to its final destination.
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function submitData(array $data);
 }
