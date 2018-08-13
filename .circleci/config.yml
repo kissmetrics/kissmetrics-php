@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     environment:
-      CC_TEST_REPORTER_ID: 5b71a8977ff29c30d4004505
+      CC_TEST_REPORTER_ID: bfd08b7d8693e3436b88a4428660848a1be681c94886dde4d8a8b9665c88a78b
 
     docker:
     - image: circleci/php:7.2-apache-node-browsers
