@@ -56,8 +56,8 @@ class Sockets implements Transport
      * Constructor.
      *
      * @param string $host
-     * @param int    $port
-     * @param int    $timeout
+     * @param int $port
+     * @param int $timeout
      */
     public function __construct($host, $port, $timeout = 30)
     {
@@ -114,10 +114,10 @@ class Sockets implements Transport
         foreach ($queries as $data) {
             $query = http_build_query($data[1], '', '&');
             $query = str_replace(
-                  ['+', '%7E'],
-                  ['%20', '~'],
-                  $query
-               );
+                ['+', '%7E'],
+                ['%20', '~'],
+                $query
+            );
 
             $req = 'GET /'.$data[0].'?'.$query.' HTTP/1.1'."\r\n";
             $req .= 'Host: '.$this->host."\r\n";

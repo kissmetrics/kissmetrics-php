@@ -35,32 +35,29 @@ use KISSmetrics\Transport\Transport;
 class Client
 {
     /**
+     * Transport instance.
+     *
+     * @var Transport
+     */
+    protected $transport;
+    /**
      * API key.
      *
      * @var string
      */
     private $key;
-
     /**
      * User identification.
      *
      * @var string
      */
     private $id;
-
     /**
      * Queries queued for submission.
      *
      * @var array
      */
     private $queries;
-
-    /**
-     * Transport instance.
-     *
-     * @var Transport
-     */
-    protected $transport;
 
     /**
      * Initialize.
@@ -120,79 +117,13 @@ class Client
         $this->ensureSetup();
 
         array_push($this->queries, [
-      'a',
-      [
-        '_p' => $old_id,
-        '_n' => $this->id,
-        '_k' => $this->key,
-      ],
-    ]);
-
-        return $this;
-    }
-
-    /**
-     * Record an event with properties.
-     *
-     * @param string $event
-     * @param array  $properties
-     * @param int    $time
-     *
-     * @return Client
-     */
-    public function record($event, $properties = [], $time = null)
-    {
-        $this->ensureSetup();
-
-        if (is_null($time)) {
-            $time = time();
-            $isManualTime = false;
-        } else {
-            $isManualTime = true;
-        }
-
-        array_push($this->queries, [
-      'e',
-      array_merge($properties, [
-        '_n' => $event,
-        '_p' => $this->id,
-        '_k' => $this->key,
-        '_t' => $time,
-        '_d' => $isManualTime,
-      ]),
-    ]);
-
-        return $this;
-    }
-
-    /**
-     * Set a property on the user.
-     *
-     * @param array $properties
-     * @param int   $time
-     *
-     * @return Client
-     */
-    public function set($properties, $time = null)
-    {
-        $this->ensureSetup();
-
-        if (is_null($time)) {
-            $time = time();
-            $isManualTime = false;
-        } else {
-            $isManualTime = true;
-        }
-
-        array_push($this->queries, [
-      's',
-      array_merge($properties, [
-        '_k' => $this->key,
-        '_p' => $this->id,
-        '_t' => $time,
-        '_d' => $isManualTime,
-      ]),
-    ]);
+            'a',
+            [
+                '_p' => $old_id,
+                '_n' => $this->id,
+                '_k' => $this->key,
+            ],
+        ]);
 
         return $this;
     }
@@ -213,6 +144,72 @@ class Client
         if (is_null($this->id)) {
             throw new ClientException('KISSmetrics user not identified yet');
         }
+    }
+
+    /**
+     * Record an event with properties.
+     *
+     * @param string $event
+     * @param array $properties
+     * @param int $time
+     *
+     * @return Client
+     */
+    public function record($event, $properties = [], $time = null)
+    {
+        $this->ensureSetup();
+
+        if (is_null($time)) {
+            $time = time();
+            $isManualTime = false;
+        } else {
+            $isManualTime = true;
+        }
+
+        array_push($this->queries, [
+            'e',
+            array_merge($properties, [
+                '_n' => $event,
+                '_p' => $this->id,
+                '_k' => $this->key,
+                '_t' => $time,
+                '_d' => $isManualTime,
+            ]),
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Set a property on the user.
+     *
+     * @param array $properties
+     * @param int $time
+     *
+     * @return Client
+     */
+    public function set($properties, $time = null)
+    {
+        $this->ensureSetup();
+
+        if (is_null($time)) {
+            $time = time();
+            $isManualTime = false;
+        } else {
+            $isManualTime = true;
+        }
+
+        array_push($this->queries, [
+            's',
+            array_merge($properties, [
+                '_k' => $this->key,
+                '_p' => $this->id,
+                '_t' => $time,
+                '_d' => $isManualTime,
+            ]),
+        ]);
+
+        return $this;
     }
 
     /**

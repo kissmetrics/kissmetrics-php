@@ -41,17 +41,17 @@ class ClientTest extends TestCase
         $this->client->record('Purchased thing', [], 0);
 
         $this->assertEquals([
-      [
-        'e',
-        [
-          '_n'   => 'Purchased thing',
-          '_p'   => 'john@smith',
-          '_k'   => '12345',
-          '_t'   => 0,
-          '_d'   => true,
-        ],
-      ],
-    ], $this->client->getQueries());
+            [
+                'e',
+                [
+                    '_n' => 'Purchased thing',
+                    '_p' => 'john@smith',
+                    '_k' => '12345',
+                    '_t' => 0,
+                    '_d' => true,
+                ],
+            ],
+        ], $this->client->getQueries());
     }
 
     public function testRecordWithTimeAsNull()
@@ -60,17 +60,17 @@ class ClientTest extends TestCase
         $this->client->record('Purchased thing', []);
 
         $this->assertEquals([
-      [
-        'e',
-        [
-          '_n'   => 'Purchased thing',
-          '_p'   => 'john@smith',
-          '_k'   => '12345',
-          '_t'   => time(),
-          '_d'   => false,
-        ],
-      ],
-    ], $this->client->getQueries());
+            [
+                'e',
+                [
+                    '_n' => 'Purchased thing',
+                    '_p' => 'john@smith',
+                    '_k' => '12345',
+                    '_t' => time(),
+                    '_d' => false,
+                ],
+            ],
+        ], $this->client->getQueries());
     }
 
     public function testSetWithTimeAsNull()
@@ -79,17 +79,17 @@ class ClientTest extends TestCase
         $this->client->set(['eyes' => 'blue']);
 
         $this->assertEquals([
-      [
-        's',
-        [
-          'eyes' => 'blue',
-          '_p'   => 'john@smith',
-          '_k'   => '12345',
-          '_t'   => time(),
-          '_d'   => null,
-        ],
-      ],
-    ], $this->client->getQueries());
+            [
+                's',
+                [
+                    'eyes' => 'blue',
+                    '_p'   => 'john@smith',
+                    '_k'   => '12345',
+                    '_t'   => time(),
+                    '_d'   => null,
+                ],
+            ],
+        ], $this->client->getQueries());
     }
 
     public function testSet()
@@ -98,17 +98,17 @@ class ClientTest extends TestCase
         $this->client->set(['eyes' => 'blue'], 0);
 
         $this->assertEquals([
-      [
-        's',
-        [
-          'eyes' => 'blue',
-          '_p'   => 'john@smith',
-          '_k'   => '12345',
-          '_t'   => 0,
-          '_d'   => true,
-        ],
-      ],
-    ], $this->client->getQueries());
+            [
+                's',
+                [
+                    'eyes' => 'blue',
+                    '_p'   => 'john@smith',
+                    '_k'   => '12345',
+                    '_t'   => 0,
+                    '_d'   => true,
+                ],
+            ],
+        ], $this->client->getQueries());
     }
 
     public function testAlias()
@@ -117,14 +117,14 @@ class ClientTest extends TestCase
         $this->client->alias('doctor@gallifrey');
 
         $this->assertEquals([
-      [
-        'a',
-        [
-          '_p' => 'doctor@gallifrey',
-          '_n' => 'john@smith',
-          '_k' => '12345',
-        ],
-      ],
-    ], $this->client->getQueries());
+            [
+                'a',
+                [
+                    '_p' => 'doctor@gallifrey',
+                    '_n' => 'john@smith',
+                    '_k' => '12345',
+                ],
+            ],
+        ], $this->client->getQueries());
     }
 }

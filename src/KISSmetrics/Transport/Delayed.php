@@ -28,23 +28,21 @@ namespace KISSmetrics\Transport;
 class Delayed extends Sockets implements Transport
 {
     /**
-     * Directory where logged events should be stored.
-     *
-     * @var string
-     */
-    protected $log_dir;
-
-    /**
-     * @var string
-     */
-    protected $log_filename = 'kissmetrics_query.log';
-
-    /**
      * Unix timestamp of current request.
      *
      * @var null|int
      */
     public static $epoch = null;
+    /**
+     * Directory where logged events should be stored.
+     *
+     * @var string
+     */
+    protected $log_dir;
+    /**
+     * @var string
+     */
+    protected $log_filename = 'kissmetrics_query.log';
 
     /**
      * Constructor.
@@ -53,9 +51,9 @@ class Delayed extends Sockets implements Transport
      *                        Full path to local file system directory where event logs are stored.
      * @param string $host
      *                        HTTP host to use when connecting to the KISSmetrics API.
-     * @param int    $port
+     * @param int $port
      *                        HTTP port to use when connecting to the KISSmetrics API.
-     * @param int    $timeout
+     * @param int $timeout
      *                        Number of seconds to wait before timing out when connecting to the
      *                        KISSmetrics API.
      */
@@ -75,61 +73,6 @@ class Delayed extends Sockets implements Transport
     public static function initDefault()
     {
         return new static('trk.kissmetrics.com', 80);
-    }
-
-    /**
-     * Set the log directory.
-     *
-     * @param string $log_dir
-     */
-    public function setLogDir($log_dir)
-    {
-        $this->log_dir = $log_dir;
-    }
-
-    /**
-     * Get log directory.
-     *
-     * @return string
-     */
-    public function getLogDir()
-    {
-        return $this->log_dir;
-    }
-
-    /**
-     * Get the full path to the log file.
-     *
-     * @return string
-     */
-    protected function getLogFile()
-    {
-        $log_dir = $this->getLogDir();
-        if (empty($log_dir)) {
-            throw new TransportException('Cannot get log file, location not provided');
-        }
-
-        // Prefent file_not_found erorrs since the methods submitData and sendLoggedData don't check if the file exists
-        if (!file_exists($log_dir.'/'.$this->log_filename)) {
-            touch($log_dir.'/'.$this->log_filename);
-        }
-
-        return $log_dir.'/'.$this->log_filename;
-    }
-
-    /**
-     * Get the stored timestamp for this request or generate it if not set.
-     *
-     * @return int
-     *             UNIX timestamp.
-     */
-    protected static function epoch()
-    {
-        if (self::$epoch) {
-            return self::$epoch;
-        }
-
-        return time();
     }
 
     /**
@@ -158,6 +101,61 @@ class Delayed extends Sockets implements Transport
         } catch (Exception $e) {
             throw new TransportException('Cannot write to the KISSmetrics event log: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Get the stored timestamp for this request or generate it if not set.
+     *
+     * @return int
+     *             UNIX timestamp.
+     */
+    protected static function epoch()
+    {
+        if (self::$epoch) {
+            return self::$epoch;
+        }
+
+        return time();
+    }
+
+    /**
+     * Get the full path to the log file.
+     *
+     * @return string
+     */
+    protected function getLogFile()
+    {
+        $log_dir = $this->getLogDir();
+        if (empty($log_dir)) {
+            throw new TransportException('Cannot get log file, location not provided');
+        }
+
+        // Prefent file_not_found erorrs since the methods submitData and sendLoggedData don't check if the file exists
+        if (!file_exists($log_dir.'/'.$this->log_filename)) {
+            touch($log_dir.'/'.$this->log_filename);
+        }
+
+        return $log_dir.'/'.$this->log_filename;
+    }
+
+    /**
+     * Get log directory.
+     *
+     * @return string
+     */
+    public function getLogDir()
+    {
+        return $this->log_dir;
+    }
+
+    /**
+     * Set the log directory.
+     *
+     * @param string $log_dir
+     */
+    public function setLogDir($log_dir)
+    {
+        $this->log_dir = $log_dir;
     }
 
     /**
