@@ -2,7 +2,9 @@
 
 namespace KISSmetrics\Transport;
 
-class SocketsTest extends \PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class SocketsTest extends TestCase {
   public function testDefaults() {
     $km_api = Sockets::initDefault();
     $this->assertEquals('trk.kissmetrics.com', $km_api->getHost());

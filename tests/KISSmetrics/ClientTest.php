@@ -2,11 +2,15 @@
 
 namespace KISSmetrics;
 
-class ClientTest extends \PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class ClientTest extends TestCase {
   protected $client;
 
   public function setUp() {
     $this->client = new Client('12345', new Transport\Mock());
+
+    parent::setUp();
   }
 
   public function testInitialization() {
