@@ -150,8 +150,8 @@ class Client
      * Record an event with properties.
      *
      * @param string $event
-     * @param array $properties
-     * @param int $time
+     * @param array  $properties
+     * @param int    $time
      *
      * @return Client
      */
@@ -184,7 +184,7 @@ class Client
      * Set a property on the user.
      *
      * @param array $properties
-     * @param int $time
+     * @param int   $time
      *
      * @return Client
      */

@@ -51,9 +51,9 @@ class Delayed extends Sockets implements Transport
      *                        Full path to local file system directory where event logs are stored.
      * @param string $host
      *                        HTTP host to use when connecting to the KISSmetrics API.
-     * @param int $port
+     * @param int    $port
      *                        HTTP port to use when connecting to the KISSmetrics API.
-     * @param int $timeout
+     * @param int    $timeout
      *                        Number of seconds to wait before timing out when connecting to the
      *                        KISSmetrics API.
      */
