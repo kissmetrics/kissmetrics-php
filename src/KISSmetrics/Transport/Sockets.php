@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013 Eugen Rochko
+ * Copyright (c) 2013 Eugen Rochko.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,104 +25,116 @@
 namespace KISSmetrics\Transport;
 
 /**
- * Socket transport (fsockets) implementation
+ * Socket transport (fsockets) implementation.
  *
  * @author Eugen Rochko <eugen@zeonfederated.com>
  */
+class Sockets implements Transport
+{
+    /**
+     * Host.
+     *
+     * @var string
+     */
+    protected $host;
 
-class Sockets implements Transport {
-  /**
-   * Host
-   * @var string
-   */
-  protected $host;
+    /**
+     * Port.
+     *
+     * @var int
+     */
+    protected $port;
 
-  /**
-   * Port
-   * @var integer
-   */
-  protected $port;
+    /**
+     * Request timeout.
+     *
+     * @var int
+     */
+    protected $timeout;
 
-  /**
-   * Request timeout
-   * @var integer
-   */
-  protected $timeout;
-
-  /**
-   * Constructor
-   * @param string  $host
-   * @param integer $port
-   * @param integer $timeout
-   */
-  public function __construct($host, $port, $timeout = 30) {
-    $this->host    = $host;
-    $this->port    = $port;
-    $this->timeout = $timeout;
-  }
-
-  /**
-   * Create new instance with KISSmetrics API defaults
-   * @return Sockets
-   */
-  public static function initDefault() {
-    return new static('trk.kissmetrics.com', 80);
-  }
-
-  /**
-   * Get host
-   * @return string
-   */
-  public function getHost() {
-    return $this->host;
-  }
-
-  /**
-   * Get port
-   * @return integer
-   */
-  public function getPort() {
-    return $this->port;
-  }
-
-  /**
-   * @see Transport
-   */
-  public function submitData(array $queries) {
-    $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
-
-    if(! $fp) {
-      throw new TransportException("Cannot connect to the KISSmetrics server: " . $errstr);
+    /**
+     * Constructor.
+     *
+     * @param string $host
+     * @param int    $port
+     * @param int    $timeout
+     */
+    public function __construct($host, $port, $timeout = 30)
+    {
+        $this->host = $host;
+        $this->port = $port;
+        $this->timeout = $timeout;
     }
 
-    //stream_set_blocking($fp, 0);
-
-    $i = 0;
-
-    foreach($queries as $data) {
-      $query = http_build_query($data[1], '', '&');
-      $query = str_replace(
-                  array('+', '%7E'),
-                  array('%20', '~'),
-                  $query
-               );
-
-      $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
-      $req .= 'Host: ' . $this->host . "\r\n";
-
-      if(++$i == count($queries)) {
-        $req .= 'Connection: Close' . "\r\n\r\n";
-      } else {
-        $req .= 'Connection: Keep-Alive' . "\r\n\r\n";
-      }
-
-      $written = fwrite($fp, $req);
-
-      if($written === false) {
-        throw new TransportException("Could not submit the query: /" . $data[0] . "?" . $query);
-      }
+    /**
+     * Create new instance with KISSmetrics API defaults.
+     *
+     * @return Sockets
+     */
+    public static function initDefault()
+    {
+        return new static('trk.kissmetrics.com', 80);
     }
 
-    fclose($fp);
-  }
+    /**
+     * Get host.
+     *
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get port.
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @see Transport
+     */
+    public function submitData(array $queries)
+    {
+        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+
+        if (!$fp) {
+            throw new TransportException('Cannot connect to the KISSmetrics server: '.$errstr);
+        }
+
+        //stream_set_blocking($fp, 0);
+
+        $i = 0;
+
+        foreach ($queries as $data) {
+            $query = http_build_query($data[1], '', '&');
+            $query = str_replace(
+                ['+', '%7E'],
+                ['%20', '~'],
+                $query
+            );
+
+            $req = 'GET /'.$data[0].'?'.$query.' HTTP/1.1'."\r\n";
+            $req .= 'Host: '.$this->host."\r\n";
+
+            if (++$i == count($queries)) {
+                $req .= 'Connection: Close'."\r\n\r\n";
+            } else {
+                $req .= 'Connection: Keep-Alive'."\r\n\r\n";
+            }
+
+            $written = fwrite($fp, $req);
+
+            if ($written === false) {
+                throw new TransportException('Could not submit the query: /'.$data[0].'?'.$query);
+            }
+        }
+
+        fclose($fp);
+    }
 }

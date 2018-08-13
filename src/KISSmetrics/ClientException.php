@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013 Eugen Rochko
+ * Copyright (c) 2013 Eugen Rochko.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,10 @@
 namespace KISSmetrics;
 
 /**
- * An exception that the Client class throws
+ * An exception that the Client class throws.
  *
  * @author Eugen Rochko <eugen@zeonfederated.com>
  */
-
-class ClientException extends \Exception {}
+class ClientException extends \Exception
+{
+}

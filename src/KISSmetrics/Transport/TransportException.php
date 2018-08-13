@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013 Eugen Rochko
+ * Copyright (c) 2013 Eugen Rochko.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,12 +23,14 @@
  */
 
 namespace KISSmetrics\Transport;
-use \Exception;
+
+use Exception;
 
 /**
- * Exception thrown by transport implementations
+ * Exception thrown by transport implementations.
  *
  * @author Eugen Rochko <eugen@zeonfederated.com>
  */
-
-class TransportException extends Exception {}
+class TransportException extends Exception
+{
+}
