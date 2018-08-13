@@ -34,6 +34,11 @@ class Delayed extends Sockets implements Transport {
   protected $log_dir;
 
   /**
+   * @var string
+   */
+  protected $log_filename = 'kissmetrics_query.log';
+
+  /**
    * Unix timestamp of current request.
    * @var null|int
    */
@@ -98,7 +103,12 @@ class Delayed extends Sockets implements Transport {
         throw new TransportException('Cannot get log file, location not provided');
     }
 
-    return $log_dir . '/kissmetrics_query.log';
+    // Prefent file_not_found erorrs since the methods submitData and sendLoggedData don't check if the file exists
+    if (!file_exists($log_dir . '/' . $this->log_filename)) {
+        touch($log_dir . '/' . $this->log_filename);
+    }
+
+    return $log_dir . '/'.$this->log_filename;
   }
 
   /**
@@ -161,7 +171,13 @@ class Delayed extends Sockets implements Transport {
     $all_queries = array();
     foreach ($data as $serialized_queries) {
       $queries = unserialize($serialized_queries);
-      $all_queries += $queries;
+      if ($queries !== false) {
+          $all_queries += $queries;
+      }
+    }
+
+    if (count($all_queries) === 0) {
+      return;
     }
 
     try {
