@@ -8,8 +8,8 @@ class SocketsTest extends TestCase
 {
     public function testDefaults()
     {
-        $km_api = Sockets::initDefault();
-        $this->assertEquals('trk.kissmetrics.com', $km_api->getHost());
-        $this->assertEquals(80, $km_api->getPort());
+        $kmApi = Sockets::initDefault();
+        $this->assertEquals('trk.kissmetrics.com', $kmApi->getHost());
+        $this->assertEquals(80, $kmApi->getPort());
     }
 }
