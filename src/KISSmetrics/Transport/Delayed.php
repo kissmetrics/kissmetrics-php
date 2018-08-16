@@ -45,9 +45,9 @@ class Delayed extends Sockets implements Transport
     protected $log_filename = 'kissmetrics_query.log';
 
     /**
-     * @param string $host HTTP host to use when connecting to the KISSmetrics API.
-     * @param int $port HTTP port to use when connecting to the KISSmetrics API.
-     * @param int $timeout Number of seconds to wait before timing out when connecting to the KISSmetrics API.
+     * @param string $host    HTTP host to use when connecting to the KISSmetrics API.
+     * @param int    $port    HTTP port to use when connecting to the KISSmetrics API.
+     * @param int    $timeout Number of seconds to wait before timing out when connecting to the KISSmetrics API.
      */
     public function __construct(string $host, int $port, int $timeout = 30)
     {

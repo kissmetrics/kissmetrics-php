@@ -56,8 +56,8 @@ class Sockets implements Transport
      * Constructor.
      *
      * @param string $host
-     * @param int $port
-     * @param int $timeout
+     * @param int    $port
+     * @param int    $timeout
      */
     public function __construct($host, $port, $timeout = 30)
     {
