@@ -72,21 +72,15 @@ class Delayed extends Sockets implements Transport
      * @see Transport
      *
      * @throws \KISSmetrics\Transport\TransportException
+     * @throws \KISSmetrics\Transport\NoQueriesException
      */
     public function submitData(array $queries): void
     {
         if (empty($queries)) {
-            return;
+            throw new NoQueriesException();
         }
 
-        foreach ($queries as $key => $query) {
-            // Keep timestamps when batching things via cron, or if they're manually
-            // specified.
-            $queries[$key][1]['_d'] = true;
-            if (!array_key_exists('_t', $queries[$key][1])) {
-                $queries[$key][1]['_t'] = self::epoch();
-            }
-        }
+        $queries = $this->formatQueries($queries);
 
         try {
             // Store our queries as a serialized array on a newline in the log file.
@@ -98,6 +92,20 @@ class Delayed extends Sockets implements Transport
         } catch (\Exception $e) {
             throw new TransportException('Cannot write to the KISSmetrics event log: '.$e->getMessage());
         }
+    }
+
+    protected function formatQueries(array $queries): array
+    {
+        foreach ($queries as $key => $query) {
+            // Keep timestamps when batching things via cron, or if they're manually
+            // specified.
+            $queries[$key][1]['_d'] = true;
+            if (!array_key_exists('_t', $queries[$key][1])) {
+                $queries[$key][1]['_t'] = self::epoch();
+            }
+        }
+
+        return $queries;
     }
 
     /**
