@@ -73,8 +73,12 @@ class Delayed extends Sockets implements Transport
      *
      * @throws \KISSmetrics\Transport\TransportException
      */
-    public function submitData(array $queries)
+    public function submitData(array $queries): void
     {
+        if (empty($queries)) {
+            return;
+        }
+
         foreach ($queries as $key => $query) {
             // Keep timestamps when batching things via cron, or if they're manually
             // specified.
