@@ -18,8 +18,8 @@ namespace KISSmetrics\Transport;
  * To ship logged events to KISSMetrics:
  *
  * @code
- * $log_dir = '/path/to/directory';
- * $km_transport = KISSmetrics\Transport\Delayed::initDefault($log_dir);
+ * $logDir = '/path/to/directory';
+ * $km_transport = KISSmetrics\Transport\Delayed::initDefault($logDir);
  * $km_transport->sendLoggedData();
  * @endcode
  *
@@ -38,35 +38,24 @@ class Delayed extends Sockets implements Transport
      *
      * @var string
      */
-    protected $log_dir;
+    protected $logDir;
     /**
      * @var string
      */
     protected $log_filename = 'kissmetrics_query.log';
 
     /**
-     * Constructor.
-     *
-     * @param string $log_dir
-     *                        Full path to local file system directory where event logs are stored.
-     * @param string $host
-     *                        HTTP host to use when connecting to the KISSmetrics API.
-     * @param int $port
-     *                        HTTP port to use when connecting to the KISSmetrics API.
-     * @param int $timeout
-     *                        Number of seconds to wait before timing out when connecting to the
-     *                        KISSmetrics API.
+     * @param string $host HTTP host to use when connecting to the KISSmetrics API.
+     * @param int $port HTTP port to use when connecting to the KISSmetrics API.
+     * @param int $timeout Number of seconds to wait before timing out when connecting to the KISSmetrics API.
      */
-    public function __construct($host, $port, $timeout = 30)
+    public function __construct(string $host, int $port, int $timeout = 30)
     {
         parent::__construct($host, $port, $timeout);
     }
 
     /**
      * Create new instance of KISSmeterics\Transport\Delayed with defaults set.
-     *
-     * @param string $log_dir
-     *                        Full path to local file system directory where event logs are stored.
      *
      * @return \KISSmetrics\Transport\Delayed
      */
@@ -78,7 +67,11 @@ class Delayed extends Sockets implements Transport
     /**
      * Log queries to a local file so they can be sent to KISSmetrics later.
      *
+     * @param array $queries
+     *
      * @see Transport
+     *
+     * @throws \KISSmetrics\Transport\TransportException
      */
     public function submitData(array $queries)
     {
@@ -98,16 +91,15 @@ class Delayed extends Sockets implements Transport
                 fwrite($fh, serialize($queries)."\n");
                 fclose($fh);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new TransportException('Cannot write to the KISSmetrics event log: '.$e->getMessage());
         }
     }
 
     /**
-     * Get the stored timestamp for this request or generate it if not set.
+     * Get the stored UNIX timestamp for this request or generate it if not set.
      *
      * @return int
-     *             UNIX timestamp.
      */
     protected static function epoch()
     {
@@ -118,24 +110,19 @@ class Delayed extends Sockets implements Transport
         return time();
     }
 
-    /**
-     * Get the full path to the log file.
-     *
-     * @return string
-     */
-    protected function getLogFile()
+    protected function getLogFile(): string
     {
-        $log_dir = $this->getLogDir();
-        if (empty($log_dir)) {
-            throw new TransportException('Cannot get log file, location not provided');
+        $logDir = $this->getLogDir();
+        if (empty($logDir)) {
+            throw new TransportException('Cannot get log file, location not provided, please use setLogDir()');
         }
 
         // Prefent file_not_found erorrs since the methods submitData and sendLoggedData don't check if the file exists
-        if (!file_exists($log_dir.'/'.$this->log_filename)) {
-            touch($log_dir.'/'.$this->log_filename);
+        if (!file_exists($logDir.'/'.$this->log_filename)) {
+            touch($logDir.'/'.$this->log_filename);
         }
 
-        return $log_dir.'/'.$this->log_filename;
+        return $logDir.'/'.$this->log_filename;
     }
 
     /**
@@ -145,17 +132,17 @@ class Delayed extends Sockets implements Transport
      */
     public function getLogDir()
     {
-        return $this->log_dir;
+        return $this->logDir;
     }
 
     /**
      * Set the log directory.
      *
-     * @param string $log_dir
+     * @param string $logDir
      */
-    public function setLogDir($log_dir)
+    public function setLogDir($logDir)
     {
-        $this->log_dir = $log_dir;
+        $this->logDir = $logDir;
     }
 
     /**
@@ -174,26 +161,26 @@ class Delayed extends Sockets implements Transport
         $data = explode('\n', $data);
 
         // Unserialize all the queries into a single array.
-        $all_queries = [];
-        foreach ($data as $serialized_queries) {
-            $queries = unserialize($serialized_queries);
+        $allQueries = [];
+        foreach ($data as $serializedQueries) {
+            $queries = unserialize($serializedQueries);
             if ($queries !== false) {
-                $all_queries += $queries;
+                $allQueries += $queries;
             }
         }
 
-        if (count($all_queries) === 0) {
+        if (count($allQueries) === 0) {
             return;
         }
 
         try {
             // Send all the stored queries using the KISSmetrics/Transport/Sockets
             // implementation.
-            parent::submitData($all_queries);
+            parent::submitData($allQueries);
 
             // Cleanup the log file so we don't resend the same data again.
             unlink($this->getLogFile());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new TransportException('Cannot send logged events to KISSmetrics: '.$e->getMessage());
         }
     }
