@@ -1,10 +1,8 @@
 <?php
-/**
- * Delayed transport aggregates events locally and sends them all together.
- * Usually via crontab or other similar means.
- */
 
 namespace KISSmetrics\Transport;
+
+use function str_repeat;
 
 /**
  * Delayed transport implementation.
@@ -14,6 +12,9 @@ namespace KISSmetrics\Transport;
  *
  * This allows for many events to be gathered and then sent all at once instead
  * of opening a new connection to the KISSmetrics API for every event.
+ *
+ * Delayed transport aggregates events locally and sends them all together.
+ * Usually via crontab or other similar means.
  *
  * To ship logged events to KISSMetrics:
  *
@@ -25,43 +26,47 @@ namespace KISSmetrics\Transport;
  *
  * @author Joe Shindelar <eojthebrave@gmail.com>
  */
-class Delayed extends Sockets implements Transport
+class Delayed implements Transport
 {
+    /**
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzleClient;
+
+    /***
+     * @var string
+     */
+    protected $apiEndpoint;
+
     /**
      * Unix timestamp of current request.
      *
      * @var null|int
      */
     public static $epoch = null;
+
     /**
      * Directory where logged events should be stored.
      *
      * @var string
      */
     protected $logDir;
+
     /**
      * @var string
      */
     protected $log_filename = 'kissmetrics_query.log';
 
-    /**
-     * @param string $host    HTTP host to use when connecting to the KISSmetrics API.
-     * @param int    $port    HTTP port to use when connecting to the KISSmetrics API.
-     * @param int    $timeout Number of seconds to wait before timing out when connecting to the KISSmetrics API.
-     */
-    public function __construct(string $host, int $port, int $timeout = 30)
-    {
-        parent::__construct($host, $port, $timeout);
-    }
+    public function __construct(
+        string $apiEndpoint = 'https://trk.kissmetrics.local.wdnl',
+        \GuzzleHttp\ClientInterface $guzzleClient = null
+    ) {
+        $this->apiEndpoint = $apiEndpoint;
 
-    /**
-     * Create new instance of KISSmeterics\Transport\Delayed with defaults set.
-     *
-     * @return \KISSmetrics\Transport\Delayed
-     */
-    public static function initDefault()
-    {
-        return new static('trk.kissmetrics.com', 80);
+        if ($guzzleClient === null) {
+            $guzzleClient = new \GuzzleHttp\Client();
+        }
+        $this->guzzleClient = $guzzleClient;
     }
 
     /**
@@ -86,7 +91,7 @@ class Delayed extends Sockets implements Transport
             // Store our queries as a serialized array on a newline in the log file.
             $fh = fopen(self::getLogFile(), 'a');
             if ($fh) {
-                fwrite($fh, serialize($queries)."\n");
+                fwrite($fh, serialize($queries).PHP_EOL);
                 fclose($fh);
             }
         } catch (\Exception $e) {
@@ -137,47 +142,27 @@ class Delayed extends Sockets implements Transport
         return $logDir.'/'.$this->log_filename;
     }
 
-    /**
-     * Get log directory.
-     *
-     * @return string
-     */
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return $this->logDir;
     }
 
-    /**
-     * Set the log directory.
-     *
-     * @param string $logDir
-     */
-    public function setLogDir($logDir)
+    public function setLogDir($logDir): void
     {
         $this->logDir = $logDir;
     }
 
-    /**
-     * Use the Sockets transport implmentation to send logged data to KISSmetrics.
-     *
-     * Loads the contents of the log file and then sends it to KISSmetrics for
-     * processing. If successful deletes the log file afterwards so that we do
-     * not send duplicate events.
-     *
-     * @throws TransportException
-     */
-    public function sendLoggedData()
+    public function sendLoggedData(): void
     {
-        // Load all stored queries.
         $data = file_get_contents($this->getLogFile());
-        $data = explode('\n', $data);
+        $data = explode(PHP_EOL, $data);
 
         // Unserialize all the queries into a single array.
         $allQueries = [];
         foreach ($data as $serializedQueries) {
             $queries = unserialize($serializedQueries);
             if ($queries !== false) {
-                $allQueries += $queries;
+                $allQueries[] = $queries;
             }
         }
 
@@ -186,9 +171,18 @@ class Delayed extends Sockets implements Transport
         }
 
         try {
-            // Send all the stored queries using the KISSmetrics/Transport/Sockets
-            // implementation.
-            parent::submitData($allQueries);
+            foreach ($allQueries as $queryGroup) {
+                foreach ($queryGroup as $queries) {
+                    $query = http_build_query($queries[1], '', '&');
+                    $query = str_replace(
+                        ['+', '%7E'],
+                        ['%20', '~'],
+                        $query
+                    );
+
+                    $this->guzzleClient->request('GET', $this->apiEndpoint.'/'.$queries[0].'?'.$query);
+                }
+            }
 
             // Cleanup the log file so we don't resend the same data again.
             unlink($this->getLogFile());
