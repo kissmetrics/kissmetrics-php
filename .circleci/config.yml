@@ -1,0 +1,49 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2
+jobs:
+  build:
+      #todo move this env var to circleci
+    environment:
+      CC_TEST_REPORTER_ID: bfd08b7d8693e3436b88a4428660848a1be681c94886dde4d8a8b9665c88a78b
+
+    docker:
+    - image: circleci/php:7.2-apache-node-browsers
+
+    working_directory: ~/repo
+
+    steps:
+    - checkout
+
+    - run: sudo wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -O /usr/local/bin/cc-test-reporter
+    - run: sudo chmod +x /usr/local/bin/cc-test-reporter
+
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+        - v1-dependencies-{{ checksum "composer.lock" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+
+    - run: composer install -n --prefer-dist
+
+    - save_cache:
+        paths:
+        - ./vendor
+        key: v1-dependencies-{{ checksum "composer.lock" }}
+
+    - run: cc-test-reporter before-build
+
+    - run:
+        command: |
+          mkdir -p ./build/logs &&
+          vendor/bin/phpunit --log-junit ./build/logs/junit.xml --coverage-clover ./build/logs/clover.xml --coverage-html ./build/logs/clover_html/
+
+    - run: cc-test-reporter after-build -t clover --exit-code $?
+
+    - store_test_results:
+        path: ./build/logs
+    - store_artifacts:
+        path: ./build/logs

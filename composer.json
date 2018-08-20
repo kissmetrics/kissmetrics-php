@@ -1,27 +1,31 @@
 {
-  "name": "kissmetrics/kissmetrics-php",
-  "type": "library",
-  "description": "The KISSmetrics API client",
-  "homepage": "https://github.com/kissmetrics/kissmetrics-php",
-  "license": "MIT",
-  "keywords": ["kissmetrics"],
-  "authors": [
-    {
-      "name": "Eugen Rochko",
-      "email": "eugen@zeonfederated.com",
-      "homepage": "http://zeonfederated.com",
-      "role": "Developer"
+    "name": "kissmetrics/kissmetrics-php",
+    "type": "library",
+    "description": "The KISSmetrics API client",
+    "homepage": "https://github.com/kissmetrics/kissmetrics-php",
+    "license": "MIT",
+    "keywords": [
+        "kissmetrics"
+    ],
+    "authors": [
+        {
+            "name": "Eugen Rochko",
+            "email": "eugen@zeonfederated.com",
+            "homepage": "http://zeonfederated.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.2.0",
+        "guzzlehttp/guzzle": "^5.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.0.0",
+        "mockery/mockery": "^1.1"
+    },
+    "autoload": {
+        "psr-0": {
+            "KISSmetrics\\": "src/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=5.3"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "3.7.*"
-  },
-  "autoload": {
-    "psr-0": {
-      "KISSmetrics\\": "src/"
-    }
-  }
 }

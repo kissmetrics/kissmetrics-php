@@ -22,13 +22,8 @@
  * SOFTWARE.
  */
 
-namespace KISSmetrics;
+namespace KISSmetrics\Transport;
 
-/**
- * An exception that the Client class throws.
- *
- * @author Eugen Rochko <eugen@zeonfederated.com>
- */
-class ClientException extends \Exception
+class NoQueriesException extends TransportException
 {
 }

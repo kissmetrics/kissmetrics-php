@@ -1,7 +1,9 @@
 KISSmetrics for PHP
 ===================
 
-[![Build Status](https://travis-ci.org/kissmetrics/kissmetrics-php.png?branch=master)](https://travis-ci.org/kissmetrics/kissmetrics-php)
+[![CircleCI](https://circleci.com/gh/Learnfield-GmbH/kissmetrics-php.svg?style=svg&circle-token=c023d1ac79ca1fd9710f28d45de1aae32c7b292c)](https://circleci.com/gh/Learnfield-GmbH/kissmetrics-php)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b772b59abbbec9fceeb5/maintainability)](https://codeclimate.com/github/Learnfield-GmbH/kissmetrics-php/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/b772b59abbbec9fceeb5/test_coverage)](https://codeclimate.com/github/Learnfield-GmbH/kissmetrics-php/test_coverage)
 
 KISSmetrics PHP client that doesn't overuse the singleton pattern and has a
 slightly better API and no built-in cron support (that's a feature). Here's

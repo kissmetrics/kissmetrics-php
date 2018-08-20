@@ -1,8 +1,4 @@
 <?php
-/**
- * Delayed transport aggregates events locally and sends them all together.
- * Usually via crontab or other similar means.
- */
 
 namespace KISSmetrics\Transport;
 
@@ -15,151 +11,181 @@ namespace KISSmetrics\Transport;
  * This allows for many events to be gathered and then sent all at once instead
  * of opening a new connection to the KISSmetrics API for every event.
  *
+ * Delayed transport aggregates events locally and sends them all together.
+ * Usually via crontab or other similar means.
+ *
  * To ship logged events to KISSMetrics:
  *
  * @code
- * $log_dir = '/path/to/directory';
- * $km_transport = KISSmetrics\Transport\Delayed::initDefault($log_dir);
+ * $logDir = '/path/to/directory';
+ * $km_transport = KISSmetrics\Transport\Delayed::initDefault($logDir);
  * $km_transport->sendLoggedData();
  * @endcode
  *
  * @author Joe Shindelar <eojthebrave@gmail.com>
  */
-class Delayed extends Sockets implements Transport {
+class Delayed implements Transport
+{
+    /**
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzleClient;
 
-  /**
-   * Directory where logged events should be stored.
-   * @var string
-   */
-  protected $log_dir;
+    /***
+     * @var string
+     */
+    protected $apiEndpoint;
 
-  /**
-   * Unix timestamp of current request.
-   * @var null|int
-   */
-  static $epoch = NULL;
+    /**
+     * Unix timestamp of current request.
+     *
+     * @var null|int
+     */
+    public static $epoch = null;
 
-  /**
-   * Constructor
-   *
-   * @param string $log_dir
-   *   Full path to local file system directory where event logs are stored.
-   * @param string $host
-   *   HTTP host to use when connecting to the KISSmetrics API.
-   * @param int $port
-   *   HTTP port to use when connecting to the KISSmetrics API.
-   * @param int $timeout
-   *   Number of seconds to wait before timing out when connecting to the
-   *   KISSmetrics API.
-   */
-  public function __construct($log_dir, $host, $port, $timeout = 30) {
-    parent::__construct($host, $port, $timeout);
-    $this->log_dir = $log_dir;
-  }
+    /**
+     * Directory where logged events should be stored.
+     *
+     * @var string
+     */
+    protected $logDir;
 
-  /**
-   * Create new instance of KISSmeterics\Transport\Delayed with defaults set.
-   *
-   * @param string $log_dir
-   *   Full path to local file system directory where event logs are stored.
-   *
-   * @return \KISSmetrics\Transport\Delayed
-   */
-  public static function initDefault($log_dir) {
-    return new static($log_dir, 'trk.kissmetrics.com', 80);
-  }
+    /**
+     * @var string
+     */
+    protected $log_filename = 'kissmetrics_query.log';
 
-  /**
-   * Get log directory.
-   *
-   * @return string
-   */
-  public function getLogDir() {
-    return $this->log_dir;
-  }
+    public function __construct(
+        string $apiEndpoint = 'https://trk.kissmetrics.local.wdnl',
+        \GuzzleHttp\ClientInterface $guzzleClient = null
+    ) {
+        $this->apiEndpoint = $apiEndpoint;
 
-  /**
-   * Get the full path to the log file.
-   *
-   * @return string
-   */
-  protected function getLogFile() {
-    return $this->getLogDir() . '/kissmetrics_query.log';
-  }
-
-  /**
-   * Get the stored timestamp for this request or generate it if not set.
-   *
-   * @return int
-   *   UNIX timestamp.
-   */
-  static protected function epoch() {
-    if (self::$epoch) {
-      return self::$epoch;
+        if ($guzzleClient === null) {
+            $guzzleClient = new \GuzzleHttp\Client();
+        }
+        $this->guzzleClient = $guzzleClient;
     }
 
-    return time();
-  }
+    /**
+     * Log queries to a local file so they can be sent to KISSmetrics later.
+     *
+     * @param array $queries
+     *
+     * @see Transport
+     *
+     * @throws \KISSmetrics\Transport\TransportException
+     * @throws \KISSmetrics\Transport\NoQueriesException
+     */
+    public function submitData(array $queries): void
+    {
+        if (empty($queries)) {
+            throw new NoQueriesException();
+        }
 
-  /**
-   * Log queries to a local file so they can be sent to KISSmetrics later.
-   *
-   * @see Transport
-   */
-  public function submitData(array $queries) {
-    foreach ($queries as $key => $query) {
-      // Keep timestamps when batching things via cron, or if they're manually
-      // specified.
-      $queries[$key][1]['_d'] = TRUE;
-      if (!array_key_exists('_t', $queries[$key][1])) {
-        $queries[$key][1]['_t'] = self::epoch();
-      }
+        $queries = $this->formatQueries($queries);
+
+        try {
+            // Store our queries as a serialized array on a newline in the log file.
+            $fh = fopen(self::getLogFile(), 'a');
+            if ($fh) {
+                fwrite($fh, serialize($queries).PHP_EOL);
+                fclose($fh);
+            }
+        } catch (\Exception $e) {
+            throw new TransportException('Cannot write to the KISSmetrics event log: '.$e->getMessage());
+        }
     }
 
-    try {
-      // Store our queries as a serialized array on a newline in the log file.
-      $fh = fopen(self::getLogFile(),'a');
-      if($fh) {
-        fputs($fh, serialize($queries) . "\n");
-        fclose($fh);
-      }
-    }
-    catch(Exception $e) {
-      throw new TransportException("Cannot write to the KISSmetrics event log: " . $e->getMessage());
-    }
-  }
+    protected function formatQueries(array $queries): array
+    {
+        foreach ($queries as $key => $query) {
+            // Keep timestamps when batching things via cron, or if they're manually
+            // specified.
+            $queries[$key][1]['_d'] = true;
+            if (!array_key_exists('_t', $queries[$key][1])) {
+                $queries[$key][1]['_t'] = self::epoch();
+            }
+        }
 
-  /**
-   * Use the Sockets transport implmentation to send logged data to KISSmetrics.
-   *
-   * Loads the contents of the log file and then sends it to KISSmetrics for
-   * processing. If successful deletes the log file afterwards so that we do
-   * not send duplicate events.
-   *
-   * @throws TransportException
-   */
-  public function sendLoggedData() {
-    // Load all stored queries.
-    $data = file_get_contents($this->getLogFile());
-    $data = explode('\n', $data);
-
-    // Unserialize all the queries into a single array.
-    $all_queries = array();
-    foreach ($data as $serialized_queries) {
-      $queries = unserialize($serialized_queries);
-      $all_queries += $queries;
+        return $queries;
     }
 
-    try {
-      // Send all the stored queries using the KISSmetrics/Transport/Sockets
-      // implementation.
-      parent::submitData($all_queries);
+    /**
+     * Get the stored UNIX timestamp for this request or generate it if not set.
+     *
+     * @return int
+     */
+    protected static function epoch()
+    {
+        if (self::$epoch) {
+            return self::$epoch;
+        }
 
-      // Cleanup the log file so we don't resend the same data again.
-      unlink($this->getLogFile());
+        return time();
     }
-    catch (Exception $e) {
-      throw new TransportException("Cannot send logged events to KISSmetrics: " . $e->getMessage());
+
+    protected function getLogFile(): string
+    {
+        $logDir = $this->getLogDir();
+        if (empty($logDir)) {
+            throw new TransportException('Cannot get log file, location not provided, please use setLogDir()');
+        }
+
+        // Prefent file_not_found erorrs since the methods submitData and sendLoggedData don't check if the file exists
+        if (!file_exists($logDir.'/'.$this->log_filename)) {
+            touch($logDir.'/'.$this->log_filename);
+        }
+
+        return $logDir.'/'.$this->log_filename;
     }
-  }
+
+    public function getLogDir(): string
+    {
+        return $this->logDir;
+    }
+
+    public function setLogDir($logDir): void
+    {
+        $this->logDir = $logDir;
+    }
+
+    public function sendLoggedData(): void
+    {
+        $data = file_get_contents($this->getLogFile());
+        $data = explode(PHP_EOL, $data);
+
+        // Unserialize all the queries into a single array.
+        $allQueries = [];
+        foreach ($data as $serializedQueries) {
+            $queries = unserialize($serializedQueries);
+            if ($queries !== false) {
+                $allQueries[] = $queries;
+            }
+        }
+
+        if (count($allQueries) === 0) {
+            return;
+        }
+
+        try {
+            foreach ($allQueries as $queryGroup) {
+                foreach ($queryGroup as $queries) {
+                    $query = http_build_query($queries[1], '', '&');
+                    $query = str_replace(
+                        ['+', '%7E'],
+                        ['%20', '~'],
+                        $query
+                    );
+
+                    $this->guzzleClient->request('GET', $this->apiEndpoint.'/'.$queries[0].'?'.$query);
+                }
+            }
+
+            // Cleanup the log file so we don't resend the same data again.
+            unlink($this->getLogFile());
+        } catch (\Exception $e) {
+            throw new TransportException('Cannot send logged events to KISSmetrics: '.$e->getMessage());
+        }
+    }
 }
