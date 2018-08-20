@@ -2,8 +2,6 @@
 
 namespace KISSmetrics\Transport;
 
-use function str_repeat;
-
 /**
  * Delayed transport implementation.
  *

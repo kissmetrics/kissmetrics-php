@@ -65,19 +65,19 @@ class DelayedTransportTest extends TestCase
         $guzzleClient->shouldReceive('request')
             ->once()
             ->withArgs([
-                'GET', 'https://trk.kissmetrics.com/e?_n=Runned%20test&_p=example%40example.com&_k=test&_t='.time().'&_d=1'
+                'GET', 'https://trk.kissmetrics.com/e?_n=Runned%20test&_p=example%40example.com&_k=test&_t='.time().'&_d=1',
             ]);
 
         $guzzleClient->shouldReceive('request')
             ->once()
             ->withArgs([
-                'GET', 'https://trk.kissmetrics.com/e?_n=Runned%20test%202&_p=example2%40example.com&_k=test&_t='.time().'&_d=1'
+                'GET', 'https://trk.kissmetrics.com/e?_n=Runned%20test%202&_p=example2%40example.com&_k=test&_t='.time().'&_d=1',
             ]);
 
         $guzzleClient->shouldReceive('request')
             ->once()
             ->withArgs([
-                'GET', 'https://trk.kissmetrics.com/s?property=value_1&_k=test&_p=example3%40example.com&_t='.time().'&_d=1'
+                'GET', 'https://trk.kissmetrics.com/s?property=value_1&_k=test&_p=example3%40example.com&_t='.time().'&_d=1',
             ]);
 
         $this->kmTransport = new Delayed('https://trk.kissmetrics.com', $guzzleClient);
@@ -114,7 +114,7 @@ class DelayedTransportTest extends TestCase
         $this->kmApi
             ->identify('example3@example.com')
             ->set([
-                'property' => 'value_1'
+                'property' => 'value_1',
             ])
             ->submit();
     }
