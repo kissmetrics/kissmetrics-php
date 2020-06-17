@@ -66,7 +66,7 @@ class Sockets implements Transport {
    * @return Sockets
    */
   public static function initDefault() {
-    return new static('trk.kissmetrics.com', 80);
+    return new static('trk.kissmetrics.io', 80);
   }
 
   /**
