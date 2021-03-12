@@ -66,7 +66,7 @@ class Delayed extends Sockets implements Transport {
    * @return \KISSmetrics\Transport\Delayed
    */
   public static function initDefault($log_dir) {
-    return new static($log_dir, 'trk.kissmetrics.io', 80);
+    return new static($log_dir, 'php.kissmetrics.io', 80);
   }
 
   /**
