@@ -141,13 +141,15 @@ class Delayed extends Sockets implements Transport {
   public function sendLoggedData() {
     // Load all stored queries.
     $data = file_get_contents($this->getLogFile());
-    $data = explode('\n', $data);
+    $data = explode(PHP_EOL, $data);
 
     // Unserialize all the queries into a single array.
     $all_queries = array();
     foreach ($data as $serialized_queries) {
-      $queries = unserialize($serialized_queries);
-      $all_queries += $queries;
+      if($serialized_queries !== null && strlen($serialized_queries) !== 0) {
+        $queries = unserialize($serialized_queries);
+        $all_queries = array_merge($all_queries, $queries);
+      }
     }
 
     try {
