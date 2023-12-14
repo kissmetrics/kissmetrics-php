@@ -4,13 +4,12 @@
   "description": "The KISSmetrics API client",
   "homepage": "https://github.com/kissmetrics/kissmetrics-php",
   "license": "MIT",
-  "keywords": ["kissmetrics"],
+  "keywords": [
+    "kissmetrics"
+  ],
   "authors": [
     {
-      "name": "Eugen Rochko",
-      "email": "eugen@zeonfederated.com",
-      "homepage": "http://zeonfederated.com",
-      "role": "Developer"
+      "name": "Eugen Rochko"
     }
   ],
   "require": {
