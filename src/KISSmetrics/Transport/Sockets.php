@@ -66,7 +66,7 @@ class Sockets implements Transport {
    * @return Sockets
    */
   public static function initDefault() {
-    return new static('php.kissmetrics.io', 80);
+    return new static('trk.kissmetrics.io', 80);
   }
 
   /**
@@ -89,40 +89,27 @@ class Sockets implements Transport {
    * @see Transport
    */
   public function submitData(array $queries) {
-    $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+    foreach ($queries as $data) {
+        $ch = curl_init(); // Initialize cURL handle inside the loop
 
-    if(! $fp) {
-      throw new TransportException("Cannot connect to the KISSmetrics server: " . $errstr);
+        $query = http_build_query($data[1], '', '&');
+        $query = str_replace(['+', '%7E'], ['%20', '~'], $query);
+
+        $url = 'http://' . $this->host . ':' . $this->port . '/' . $data[0] . '?' . $query;
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Connection: Keep-Alive']);
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            curl_close($ch);
+            throw new TransportException("cURL error: " . curl_error($ch));
+        }
+        echo $url. '<br>';
+        curl_close($ch); // Close the cURL handle at the end of each loop iteration
     }
-
-    //stream_set_blocking($fp, 0);
-
-    $i = 0;
-
-    foreach($queries as $data) {
-      $query = http_build_query($data[1], '', '&');
-      $query = str_replace(
-                  array('+', '%7E'),
-                  array('%20', '~'),
-                  $query
-               );
-
-      $req  = 'GET /' . $data[0] . '?' . $query . ' HTTP/1.1' . "\r\n";
-      $req .= 'Host: ' . $this->host . "\r\n";
-
-      if(++$i == count($queries)) {
-        $req .= 'Connection: Close' . "\r\n\r\n";
-      } else {
-        $req .= 'Connection: Keep-Alive' . "\r\n\r\n";
-      }
-
-      $written = fwrite($fp, $req);
-
-      if($written === false) {
-        throw new TransportException("Could not submit the query: /" . $data[0] . "?" . $query);
-      }
-    }
-
-    fclose($fp);
   }
 }
